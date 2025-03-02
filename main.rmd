@@ -1,7 +1,21 @@
 ---
-title: "R Notebook"
-output: RNotebook
+title: "R Evaluacion"
+author: "Rafael Camarero Rodríguez"
+date: "2025-03-02"
+output: pdf_document
 ---
+# Sección 1: Código fuente y Resultados de la ejecución
+La presente sección se ha generado usando Rmarkdown, en dataspell, el código fuente se puede encontrar tanto en formato r como rmd adjuntado en la entrega y en github https://github.com/Rcamrods/R_evaluacion/
+```{r}
+install.packages("caret", repos = "https://cran.rstudio.com/")
+library(caret)
+install.packages("AUC", repos = "https://cran.rstudio.com/")
+library(AUC)
+install.packages("ROCR", repos = "https://cran.rstudio.com/")
+library(ROCR)
+install.packages("tinytex", repos = "https://cran.rstudio.com/")
+library(tinytex)
+```
 ```{r}
 print("1. Cargar datos en R")
 print("====================")
@@ -144,3 +158,59 @@ legend("bottomright", legend = c("Naive Bayes", "Decision Tree", "Neural Network
        col = c("blue", "red", "green", "orange", "purple"), lwd = 2)
 
 ```
+
+# Sección 2: Preguntas
+
+**Q1. ¿Si el modelo A tiene mayor Accuracy que B, siempre tendrá mayor Kappa que B? Justifica tu respuesta.**
+
+No hay una correlación directa entre Accuracy y Kappa, el accuracy mide la proporción de aciertos, mientras que kappa compara los aciertos totales contra los valores que podrían darse por el azar, aquí un ejemplo:
+```{r}
+library(caret)
+
+actual <- factor(c(rep("Positivo", 90), rep("Negativo", 10)),
+                 levels = c("Positivo", "Negativo"))
+
+pred_A <- factor(rep("Positivo", 100), levels = c("Positivo", "Negativo"))
+
+pred_B <- c(rep("Positivo", 70), rep("Negativo", 30))
+pred_B <- factor(pred_B, levels = c("Positivo", "Negativo"))
+
+cm_A <- confusionMatrix(pred_A, actual)
+cm_B <- confusionMatrix(pred_B, actual)
+
+acc_A <- cm_A$overall["Accuracy"]
+kappa_A <- cm_A$overall["Kappa"]
+
+acc_B <- cm_B$overall["Accuracy"]
+kappa_B <- cm_B$overall["Kappa"]
+
+results_table <- data.frame(
+        Model = c("Clasificador A", "Clasificador B"),
+        Accuracy = c(as.numeric(acc_A), as.numeric(acc_B)),
+        Kappa = c(as.numeric(kappa_A), as.numeric(kappa_B))
+)
+print(results_table)
+
+```
+
+En este ejemplo, tenemos un dataset desbalanceado en 90 10, el primer clasificador siempre predice positivo, por lo que su accuracy es 0.9, mientras que su kappa, al ser su accuracy esperado igual al accuracy real, es 0, mientras que el clasificador b predice los 70 primeros valores como positivos, y el resto como negativos, por lo que el accuracy esperado es de pe = (0.9x0.7) + (0.1*0.3) = 0.66, al tener el modelo un accuracy superior al esperado, el kappa es positivo, en este caso 0.411, lo que es superior al clasificador A, teniendo un accuracy inferior.
+
+**Q2. ¿Vemos eso en tus resultados?**
+*Respuesta:*
+No, en mis resultados se puede observar una correlación entre el accuracy y el kappa.
+
+**Q3. ¿Te cambian los resultados cuando cambias la semilla?**
+
+Sí, al cambiar la semilla se generan particiones diferentes de los datos en entrenamiento y test, lo que modifica el rendimiento de los modelos al ser entrenados y probados con un reparto diferente datos.
+
+**Q4. ¿Es recomendable quedarse con los resultados mejores después de cambiar las semillas varias veces? Justifica la respuesta.**
+
+No, no es recomendable seleccionar el resultado mejor obtenido, ya que esto implica un sesgo de selección, lo que puede hacer que nuestro modelo solo sea util para ese set de datos concreto.
+
+**Q5. ¿Qué modelos puedes descartar porque van a ser siempre subóptimos (asumiendo una buena evaluación)?**
+
+Podemos descartar los modelos que solamente predicen una de las clases.
+
+**Q6. ¿Por qué puedes descartar esos modelos?**
+
+Porque, pese a que puedan obtener "buenas métricas", al tener sobre todo datasets desbalanceados, otros modelos pueden aprender realmente de dichos datos y presentar mejores resultados aunque tengan peores métricas
