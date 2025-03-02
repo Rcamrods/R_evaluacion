@@ -17,3 +17,15 @@ cat("Numero de valores faltantes:", missing_vals, "\n")
 
 
 set.seed(12345)
+
+print("2. Partir datos en train y test")
+print("===============================")
+trainIndex <- createDataPartition(data$Class, p = 0.7, list = FALSE)
+trainData <- data[trainIndex, ]
+testData <- data[-trainIndex, ]
+
+cat("Proporcion en entrenamiento:\n")
+print(prop.table(table(trainData$Class)))
+cat("Proporcion en test:\n")
+print(prop.table(table(testData$Class)))
+
