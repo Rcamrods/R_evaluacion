@@ -70,3 +70,41 @@ cat("Decision Tree:\n"); print(eval_dt)
 cat("Neural Network:\n"); print(eval_nn)
 cat("KNN:\n");          print(eval_knn)
 cat("SVM:\n");  print(eval_svm)
+
+print("4. Mostrar matrices de confusion y aniadir el AUC a la tabla de accuracy y kappa")
+print("================================================================================")
+
+cm_nb <- confusionMatrix(pred_nb, testData$Class)
+cm_dt <- confusionMatrix(pred_dt, testData$Class)
+cm_nn <- confusionMatrix(pred_nn, testData$Class)
+cm_knn <- confusionMatrix(pred_knn, testData$Class)
+cm_svm <- confusionMatrix(pred_svm, testData$Class)
+
+print("Matrices de confusion")
+cat("Naive Bayes:\n");  print(cm_nb$table)
+cat("Decision Tree:\n"); print(cm_dt$table)
+cat("Neural Network:\n"); print(cm_nn$table)
+cat("KNN:\n");          print(cm_knn$table)
+cat("SVM:\n");  print(cm_svm$table)
+
+calcular_auc <- function(model, testData) {
+  prob <- predict(model, newdata = testData, type = "prob")
+  roc_obj <- roc(prob$positive, testData$Class)
+  auc_val <- auc(roc_obj)
+  return(auc_val)
+}
+
+auc_nb  <- calcular_auc(model_nb,  testData)
+auc_dt  <- calcular_auc(model_dt,  testData)
+auc_nn  <- calcular_auc(model_nn,  testData)
+auc_knn <- calcular_auc(model_knn, testData)
+auc_svm <- calcular_auc(model_svm, testData)
+
+print("Tabla con accuracy, kappa y auc")
+resultados_test <- data.frame(
+  Modelo = c("Naive Bayes", "Decision Tree", "Neural Network", "Nearest Neighbour", "SVM (linear)"),
+  Accuracy = c(eval_nb[1], eval_dt[1], eval_nn[1], eval_knn[1], eval_svm[1]),
+  Kappa = c(eval_nb[2], eval_dt[2], eval_nn[2], eval_knn[2], eval_svm[2]),
+  AUC = c(auc_nb, auc_dt, auc_nn, auc_knn, auc_svm)
+)
+print(resultados_test)
