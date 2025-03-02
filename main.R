@@ -29,3 +29,44 @@ print(prop.table(table(trainData$Class)))
 cat("Proporcion en test:\n")
 print(prop.table(table(testData$Class)))
 
+print("3. Entrenamiento usando validacion cruzada")
+print("==========================================")
+control <- trainControl(method = "repeatedcv", number = 10, repeats = 1, classProbs = TRUE)
+
+model_nb   <- train(Class ~ ., data = trainData, method = "nb",        trControl = control)
+model_dt   <- train(Class ~ ., data = trainData, method = "rpart",     trControl = control)
+model_nn   <- train(Class ~ ., data = trainData, method = "nnet",      trControl = control, trace = FALSE)
+model_knn  <- train(Class ~ ., data = trainData, method = "knn",       trControl = control)
+model_svm  <- train(Class ~ ., data = trainData, method = "svmLinear", trControl = control)
+
+results <- resamples(list(NB = model_nb, DecisionTree = model_dt,
+                          NeuralNet = model_nn, KNN = model_knn,
+                          SVM = model_svm))
+summary(results)
+
+pred_nb  <- predict(model_nb, newdata = testData)
+pred_dt  <- predict(model_dt, newdata = testData)
+pred_nn  <- predict(model_nn, newdata = testData)
+pred_knn <- predict(model_knn, newdata = testData)
+pred_svm <- predict(model_svm, newdata = testData)
+
+
+testData$Class <- factor(testData$Class, levels = c("negative", "positive"))
+
+pred_nb <- factor(pred_nb, levels = levels(testData$Class))
+pred_dt <- factor(pred_dt, levels = levels(testData$Class))
+pred_nn <- factor(pred_nn, levels = levels(testData$Class))
+pred_knn <- factor(pred_knn, levels = levels(testData$Class))
+pred_svm <- factor(pred_svm, levels = levels(testData$Class))
+
+eval_nb <- postResample(pred_nb, testData$Class)
+eval_dt  <- postResample(pred_dt,  testData$Class)
+eval_nn  <- postResample(pred_nn,  testData$Class)
+eval_knn <- postResample(pred_knn, testData$Class)
+eval_svm <- postResample(pred_svm, testData$Class)
+
+cat("Naive Bayes:\n");  print(eval_nb)
+cat("Decision Tree:\n"); print(eval_dt)
+cat("Neural Network:\n"); print(eval_nn)
+cat("KNN:\n");          print(eval_knn)
+cat("SVM:\n");  print(eval_svm)
