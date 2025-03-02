@@ -214,3 +214,7 @@ Podemos descartar los modelos que solamente predicen una de las clases.
 **Q6. ¿Por qué puedes descartar esos modelos?**
 
 Porque, pese a que puedan obtener "buenas métricas", al tener sobre todo datasets desbalanceados, otros modelos pueden aprender realmente de dichos datos y presentar mejores resultados aunque tengan peores métricas
+
+# Sección 3: Uso de LLMs
+Se ha empleado ChatGPT-4o para la elaboración de esta práctica, y aunque ha supuesto una buena aproximación inicial, hicieron falta numerosos ajustes para que fuera funcional, ya que su código presentaba errores graves, como el reparto incorrecto entre train y test, hacía referencia a funciones inexistentes o librerias incorrectas, además de fallos en el tratamiento de los datos.
+
