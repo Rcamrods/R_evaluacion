@@ -108,3 +108,31 @@ resultados_test <- data.frame(
   AUC = c(auc_nb, auc_dt, auc_nn, auc_knn, auc_svm)
 )
 print(resultados_test)
+
+print("5. Representar curvas ROC")
+trazar_roc <- function(model, testData, color) {
+  # 5. a) recalculamos las predicciones con el parámetro prob
+  prob <- predict(model, newdata = testData, type = "prob")
+  # 5. b) creamos el objeto predicción
+  pred <- prediction(prob$positive, testData$Class)
+  # 5. c) calculamos TPR y FPR
+  perf <- performance(pred, "tpr", "fpr")
+  # 5. d) Dibujamos la curva
+  plot(perf, col = color, lwd = 2, add = TRUE)
+}
+
+prob_nb <- predict(model_nb, newdata = testData, type = "prob")
+pred_nb <- prediction(prob_nb$positive, testData$Class)
+perf_nb <- performance(pred_nb, "tpr", "fpr")
+plot(perf_nb, col = "blue", lwd = 2,
+     main = "Curva ROC",
+     xlab = "False Positive Rate", ylab = "True Positive Rate")
+
+trazar_roc(model_dt,  testData, "red")
+trazar_roc(model_nn,  testData, "green")
+trazar_roc(model_knn, testData, "orange")
+trazar_roc(model_svm, testData, "purple")
+
+legend("bottomright", legend = c("Naive Bayes", "Decision Tree", "Neural Network",
+                                 "KNN", "SVM (linear)"),
+       col = c("blue", "red", "green", "orange", "purple"), lwd = 2)
